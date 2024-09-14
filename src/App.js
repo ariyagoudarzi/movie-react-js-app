@@ -24,7 +24,7 @@ import popcorn from "./popcorn.png";
     Poster:
       "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_SX300.jpg",
   },
-];
+];*/
 
 const tempWatchedData = [
   {
@@ -47,7 +47,7 @@ const tempWatchedData = [
     imdbRating: 8.5,
     userRating: 9,
   },
-];*/
+];
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -61,6 +61,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [query, setQuery] = useState("inception");
   const [selectedId, setSelectedId] = useState(null);
+  setWatched(tempWatchedData);
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (selectedId === id ? null : id));
