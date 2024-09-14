@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 // import "./index.css";
 
@@ -36,10 +36,6 @@ export default function StarRating({
     setRating(rating === rate ? 0 : rate);
     onSetMovieStar(rating === rate ? 0 : rate);
   }
-
-  useEffect(function () {
-    document.title = `usePopcorn ${rating ? rating : ""}`;
-  }, []);
 
   return (
     <div style={containerStyle} className={className}>
