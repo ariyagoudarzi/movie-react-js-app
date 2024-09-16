@@ -35,7 +35,7 @@ export default function App() {
   const [watched, setWatched] = useState([]);
   const [isLoaded, setisLoaded] = useState(false);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("inception");
+  const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
 
   function handleSelectMovie(id) {
@@ -48,17 +48,21 @@ export default function App() {
 
   useEffect(
     function () {
+      const controller = new AbortController();
       setWatched(tempWatchedData);
       async function fetchMovie() {
         try {
           setError("");
+
           const res = await fetch(
-            `https://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+            `https://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+            { signal: controller.signal }
           );
 
           if (!res.ok) {
             throw new Error("Something went wrong with fetching movie :(");
           }
+
           const data = await res.json();
 
           if (data.Response === "False") {
@@ -66,10 +70,12 @@ export default function App() {
           }
 
           setMovies(data.Search);
-          document.title = movies.length;
+          setError("");
         } catch (err) {
-          console.log(err.message);
-          setError(err.message);
+          if (err.name !== "AbortError") {
+            setError(err.message);
+            console.log(err.message);
+          }
         } finally {
           setisLoaded(true);
         }
@@ -81,9 +87,11 @@ export default function App() {
         return;
       }
 
-      setTimeout(() => {
-        fetchMovie();
-      }, 1000);
+      fetchMovie();
+
+      return function () {
+        controller.abort();
+      };
     },
     [query, movies.length]
   );
@@ -92,7 +100,6 @@ export default function App() {
     <>
       <NavBar movies={movies} query={query} setQuery={setQuery} />
       <Main>
-        {/* <Box>{isLoaded ? <MovieList movies={movies} /> : <Loader />}</Box> */}
         <Box>
           {!isLoaded && <Loader />}
           {isLoaded && !error && (
@@ -102,7 +109,7 @@ export default function App() {
         </Box>
         <Box>
           {selectedId ? (
-            <SelectedMovie
+            <MovieDetails
               onCloseMovie={handleCloseMovie}
               selectedId={selectedId}
             />
@@ -126,7 +133,7 @@ function Loader() {
         trigger="loop"
         state="loop-transparency"
         colors="primary:#dee2e6"
-        style={{ width: "100px", height: "100px" }}
+        style={{ width: "70px", height: "70px" }}
       ></lord-icon>
     </div>
   );
@@ -244,7 +251,7 @@ function Movie({ movie, onSelectMoovie }) {
   );
 }
 
-function SelectedMovie({ selectedId, onCloseMovie }) {
+function MovieDetails({ selectedId, onCloseMovie }) {
   const [movie, setMovie] = useState({});
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState("");
@@ -278,7 +285,6 @@ function SelectedMovie({ selectedId, onCloseMovie }) {
 
           const data = await res.json();
           setMovie(data);
-          document.title = title;
         } catch (err) {
           console.log(err.message);
           setError(err.message);
@@ -289,6 +295,36 @@ function SelectedMovie({ selectedId, onCloseMovie }) {
       getMovieDetail();
     },
     [selectedId, title]
+  );
+
+  useEffect(
+    function () {
+      if (!title) return;
+      document.title = title;
+
+      return function () {
+        document.title = "usePopcorn";
+      };
+    },
+    [title]
+  );
+
+  useEffect(
+    function () {
+      function callBack(e) {
+        if (e.code === "Escape") {
+          onCloseMovie();
+          console.log(e.code);
+        }
+      }
+
+      document.addEventListener("keydown", callBack);
+
+      return function () {
+        document.removeEventListener("keydown", callBack);
+      };
+    },
+    [onCloseMovie]
   );
 
   return (
@@ -331,6 +367,16 @@ function SelectedMovie({ selectedId, onCloseMovie }) {
             <p>Starring: {actors}</p>
             <p>Directed by {director}</p>
             <p>Genre: {genre}</p>
+            <p className="download-movie">
+              <i className="fa-solid fa-download"></i>
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href={`https://avamovie.shop/search/?s=${selectedId}`}
+              >
+                Download the movie
+              </a>
+            </p>
           </section>
         </>
       )}
