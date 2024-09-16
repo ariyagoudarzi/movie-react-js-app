@@ -74,7 +74,7 @@ export default function App() {
         } catch (err) {
           if (err.name !== "AbortError") {
             setError(err.message);
-            console.log(err.message);
+            // console.log(err.message);
           }
         } finally {
           setisLoaded(true);
