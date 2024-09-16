@@ -255,6 +255,7 @@ function MovieDetails({ selectedId, onCloseMovie }) {
   const [movie, setMovie] = useState({});
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState("");
+  const [userRating, setUserRating] = useState("");
 
   const {
     Title: title,
@@ -359,7 +360,11 @@ function MovieDetails({ selectedId, onCloseMovie }) {
           </header>
           <section>
             <div className="rating">
-              <StarRating maxRating={10} size={2} />
+              <StarRating
+                maxRating={10}
+                size={2}
+                onSetMovieStar={setUserRating}
+              />
             </div>
             <p>
               <em>{plot}</em>
