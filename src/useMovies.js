@@ -29,7 +29,7 @@ export function useMovies(query) {
             throw new Error("Movie not found.");
           }
 
-          setMovies(data.Search);
+          setMovies(data?.Search);
           setError("");
         } catch (err) {
           if (err.name !== "AbortError") {
