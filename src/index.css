@@ -24,7 +24,7 @@
 } */
 
 ::-webkit-scrollbar {
-  width: 11px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -45,6 +45,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  outline: none;
   font-family: "Poppins", sans-serif;
   font-weight: 500;
 }
@@ -264,7 +265,7 @@ img {
 /* ******* */
 
 .summary {
-  padding: 2.2rem 3.2rem 1.8rem 3.2rem;
+  padding: 2.2rem 2.2rem 1.8rem 2.2rem;
   border-radius: 0.9rem;
   background-color: var(--color-background-100);
   box-shadow: 0 1.2rem 2.4rem rgba(0, 0, 0, 0.2);
@@ -288,6 +289,21 @@ img {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+}
+
+.setting {
+  padding-top: 1.5rem;
+  border-radius: 0.9rem;
+  background-color: var(--color-background-100);
+  justify-content: space-between;
+}
+.setting-items {
+  background-color: var(--color-background-50);
+  border: none;
+  padding: 1rem 2rem;
+  color: var(--color-text);
+  cursor: pointer;
+  border-radius: 1rem;
 }
 
 /* ******* */
