@@ -53,7 +53,7 @@ export default function StarRating({
         ))}
       </div>
       <p style={{ lineHeight: 0, color, fontSize: `${size / 1.5}rem` }}>
-        {messages.length === maxRating
+        {messages?.length === maxRating
           ? messages[tempRating ? tempRating - 1 : rating - 1]
           : tempRating || rating || ""}
       </p>
