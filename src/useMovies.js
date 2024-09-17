@@ -56,5 +56,9 @@ export function useMovies(query) {
     [query, movies.length]
   );
 
-  return { movies, isLoaded, error };
+  return {
+    movies: movies || [],
+    isLoaded: isLoaded ?? true,
+    error: error || "",
+  };
 }
