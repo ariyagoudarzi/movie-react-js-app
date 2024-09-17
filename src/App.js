@@ -6,14 +6,15 @@ import { useMovies } from "./useMovies";
 const KEY = `42ca181b`;
 
 const average = (arr) =>
-  arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+  arr?.reduce((acc, cur, i, arr) => acc + cur / arr?.length, 0);
 
 export default function App() {
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
-  const [watched, setWatched] = useState(() =>
-    JSON.parse(localStorage.getItem("watched"))
-  );
+  const [watched, setWatched] = useState(() => {
+    if (typeof window !== "undefined")
+      return JSON.parse(localStorage.getItem("watched"));
+  });
   // const [watched, setWatched] = useState([]);
 
   function handleSelectMovie(id) {
@@ -120,7 +121,7 @@ function NavBar({ movies, query, setQuery }) {
     <nav className="nav-bar">
       <div className="logo">
         <span role="img">
-          <img src={popcorn} alt="popcorn.png" />
+          <img src={popcorn} alt="USEPOPCORN" />
         </span>
         <h1>usePopcorn</h1>
       </div>
@@ -400,7 +401,7 @@ function WatchedSummery({ watched }) {
       <div>
         <p>
           <span>#️⃣</span>
-          <span>{watched.length} movies</span>
+          <span>{watched?.length} movies</span>
         </p>
         <p>
           <span>⭐️</span>
@@ -422,10 +423,10 @@ function WatchedSummery({ watched }) {
 function WatchedMovieList({ watched, onDeleteMovie }) {
   return (
     <ul className="list">
-      {watched.map((movie) => (
+      {watched?.map((movie) => (
         <WatchedMovie
           movie={movie}
-          key={movie.imdbID}
+          key={Date.now().toString(10) + Math.random().toString(10)}
           onDeleteMovie={onDeleteMovie}
         />
       ))}
