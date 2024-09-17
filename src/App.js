@@ -3,6 +3,7 @@ import StarRating from "./StarRating";
 import popcorn from "./popcorn.png";
 import { useMovies } from "./useMovies";
 import { useLocalStorage } from "./useLocalStorage";
+import { useKey } from "./useKay";
 const KEY = `42ca181b`;
 
 const average = (arr) =>
@@ -11,8 +12,9 @@ const average = (arr) =>
 export default function App() {
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
-
   const [watched, setWatched] = useLocalStorage([], "watched");
+  const [sortedWatchList, setSortedWatchList] = useState([]);
+  const [isOpenWatchedMovie, setIsOpenWatchedMovie] = useState(true);
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (selectedId === id ? null : id));
@@ -26,6 +28,10 @@ export default function App() {
     setWatched((movies) =>
       movies.filter((movie) => (movie.id !== id ? movie : ""))
     );
+  }
+
+  function handleClearWatchedList() {
+    setWatched([]);
   }
 
   const { movies, isLoaded, error } = useMovies(query);
@@ -51,11 +57,19 @@ export default function App() {
             />
           ) : (
             <>
-              <WatchedSummery watched={watched} />
+              <WatchedSummery
+                watched={watched}
+                handleClearWatchedList={handleClearWatchedList}
+                sortedWatchList={sortedWatchList}
+                onSortedWatchList={setSortedWatchList}
+                isOpenWatchedMovie={isOpenWatchedMovie}
+                onIsOpenWatchedMovie={setIsOpenWatchedMovie}
+              />
               <WatchedMovieList
                 watched={watched}
                 key={selectedId}
                 onDeleteMovie={handleDeleteMovie}
+                isOpenWatchedMovie={isOpenWatchedMovie}
               />
             </>
           )}
@@ -90,22 +104,11 @@ function ErrorMessage({ msg }) {
 function NavBar({ movies, query, setQuery }) {
   const inputEl = useRef(null);
 
-  useEffect(
-    function () {
-      function callBack(e) {
-        if (document.activeElement === inputEl.current) return;
-
-        if (e.code === "Enter") {
-          inputEl.current.focus();
-          setQuery("");
-        }
-      }
-
-      document.addEventListener("keydown", callBack);
-      return () => document.removeEventListener("keydown", callBack);
-    },
-    [setQuery]
-  );
+  useKey("Enter", function () {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current.focus();
+    setQuery("");
+  });
 
   return (
     <nav className="nav-bar">
@@ -153,25 +156,6 @@ function Box({ children }) {
     </div>
   );
 }
-
-// function WatchedBox() {
-//   const [isOpen2, setIsOpen2] = useState(true);
-
-//   return (
-//     <div className="box">
-//       <Button
-//         classNameStyle="btn-toggle"
-//         onClick={() => setIsOpen2((open) => !open)}
-//       >
-//         {isOpen2 ? "–" : "+"}
-//       </Button>
-//       {isOpen2 && (
-//         <>
-//         </>
-//       )}
-//     </div>
-//   );
-// }
 
 function MovieList({ movies, onSelectMoovie }) {
   return (
@@ -290,22 +274,8 @@ function MovieDetails({ selectedId, onCloseMovie, onWatched }) {
     [title]
   );
 
-  useEffect(
-    function () {
-      function callBack(e) {
-        if (e.code === "Escape") {
-          onCloseMovie();
-        }
-      }
-
-      document.addEventListener("keydown", callBack);
-
-      return function () {
-        document.removeEventListener("keydown", callBack);
-      };
-    },
-    [onCloseMovie]
-  );
+  // -----------
+  useKey("Escape", onCloseMovie);
 
   return (
     <div className="details">
@@ -380,7 +350,14 @@ function MovieDetails({ selectedId, onCloseMovie, onWatched }) {
   );
 }
 
-function WatchedSummery({ watched }) {
+function WatchedSummery({
+  watched,
+  handleClearWatchedList,
+  sortedWatchList,
+  onSortedWatchList,
+  isOpenWatchedMovie,
+  onIsOpenWatchedMovie,
+}) {
   const avgImdbRating = average(watched?.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched?.map((movie) => movie.userRating));
   const avgRuntime = average(watched?.map((movie) => movie.runtime));
@@ -406,20 +383,89 @@ function WatchedSummery({ watched }) {
           <span>{Math.round(avgRuntime)} min</span>
         </p>
       </div>
+      <WatchedSetting
+        handleClearWatchedList={handleClearWatchedList}
+        watched={watched}
+        sortedWatchList={sortedWatchList}
+        onSortedWatchList={onSortedWatchList}
+        isOpenWatchedMovie={isOpenWatchedMovie}
+        onIsOpenWatchedMovie={onIsOpenWatchedMovie}
+      />
     </div>
   );
 }
 
-function WatchedMovieList({ watched, onDeleteMovie }) {
+function WatchedSetting({
+  handleClearWatchedList,
+  watched,
+  sortedWatchList,
+  onSortedWatchList,
+  isOpenWatchedMovie,
+  onIsOpenWatchedMovie,
+}) {
+  const [sortBy, setSortBy] = useState("input");
+
+  // useEffect(
+  //   function () {
+  //     if (sortBy === "input") {
+  //       onSortedWatchList(watched);
+  //     } else if (sortBy === "title") {
+  //       onSortedWatchList(
+  //         watched.slice().sort((a, b) => a.Title.localeCompare(b.Title))
+  //       );
+  //     }
+  //     // console.log(sortedWatchList);
+  //     // console.log(sortedWatchList);
+  //     // else if (sortBy === "rate") {
+  //     //   sortedMovies = taskList.slice().sort((a, b) => +a.checked - +b.checked);
+  //     // }
+  //   },
+  //   [sortBy, watched, onSortedWatchList, sortedWatchList]
+  // );
+
+  return (
+    <div className="setting">
+      <button className="setting-items" onClick={handleClearWatchedList}>
+        <i className="fa-solid fa-broom broom-icon"></i>
+      </button>
+      <select
+        className="setting-items"
+        value={sortBy}
+        onChange={(e) => setSortBy(e.target.value)}
+      >
+        <option value="input"> Sort by input</option>
+        <option value="title"> Sort by title</option>
+        <option value="rate"> Sort by high rating</option>
+      </select>
+      <button
+        className="setting-items"
+        onClick={() => onIsOpenWatchedMovie(!isOpenWatchedMovie)}
+      >
+        {isOpenWatchedMovie ? (
+          <>
+            Hide <i className="fa-solid fa-eye"></i>
+          </>
+        ) : (
+          <>
+            Show <i className="fa-solid fa-eye-slash"></i>
+          </>
+        )}
+      </button>
+    </div>
+  );
+}
+
+function WatchedMovieList({ watched, onDeleteMovie, isOpenWatchedMovie }) {
   return (
     <ul className="list">
-      {watched?.map((movie) => (
-        <WatchedMovie
-          movie={movie}
-          key={Date.now().toString(10) + Math.random().toString(10)}
-          onDeleteMovie={onDeleteMovie}
-        />
-      ))}
+      {isOpenWatchedMovie &&
+        watched?.map((movie) => (
+          <WatchedMovie
+            movie={movie}
+            key={Date.now().toString(10) + Math.random().toString(10)}
+            onDeleteMovie={onDeleteMovie}
+          />
+        ))}
     </ul>
   );
 }
@@ -446,9 +492,10 @@ function WatchedMovie({ movie, onDeleteMovie }) {
         <button className="btn-delete" onClick={() => onDeleteMovie(movie.id)}>
           <lord-icon
             src="https://cdn.lordicon.com/skkahier.json"
-            trigger="hover"
+            trigger="morph"
             colors="primary:#ffffff"
             style={{ width: "22px", height: "22px" }}
+            className="icon-delete"
           ></lord-icon>
         </button>
       </div>
