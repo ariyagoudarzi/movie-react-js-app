@@ -62,23 +62,23 @@ Here are some screenshots of the app in action:
 
 1. **Homepage** (Trending Movies)
 
-   ![Screenshot 1](#)
+   ![Screenshot 1](./screenshots/photo_1.jpg)
 
 2. **Search Movies**
 
-   ![Screenshot 2](#)
+   ![Screenshot 2](./screenshots/photo_2.jpg)
 
 3. **Movie Details**
 
-   ![Screenshot 3](#)
+   ![Screenshot 3](./screenshots/photo_3.jpg)
 
 4. **Responsive View** (Mobile)
 
-   ![Screenshot 4](#)
+   ![Screenshot 4](./screenshots/photo_4.jpg)
 
 5. **Favorites List**
 
-   ![Screenshot 5](#)
+   ![Screenshot 5](./screenshots/photo_5.jpg)
 
 ---
 
